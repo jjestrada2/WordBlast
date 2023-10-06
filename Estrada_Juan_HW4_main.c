@@ -40,61 +40,60 @@ char * delim = "\"\'.“”‘’?:;-,—*($%)! \t\n\x0A\r";
 
 int count = 0;     
 int setFlag = 0;  
-int excessBytes = 0;  
-int fileDescriptor, blockSize;
+int extraBytes = 0;  
+int file, blockSize;
 pthread_mutex_t lock;
 
-//Struct to hold word and it's number of occurence
+
 typedef struct wordFrequency {
     char * word;
     int count;
 } wordFrequency;
 
-//struct object to hold array of words
+
 struct wordFrequency wordArray[MAXWORDS];
 
-// this function is used by threads to process file in blocks
-void *wordProcess(void *ptr) {  
+
+void *wordFrequencyCount(void *ptr) {  
     int result;
     char * buffer;
     char * token;
-    // allocatee buffer with excess bytes
-    buffer = malloc(blockSize+excessBytes);
 
-    //Read will attempt to read upto blockSize+excessBytes
-    //from file descriptor into the buffer
-    read(fileDescriptor, buffer, blockSize+excessBytes);
+   // Allocate a buffer with enough space for blockSize and extraBytes
+    buffer = malloc(blockSize+extraBytes);
 
-    // loop through buffer and parse strings into sequence of tokens
+   
+     // Read data from the file into the buffer
+    read(file, buffer, blockSize+extraBytes);
+
+    // Tokenize the buffer using strtok_r
     while (token = strtok_r(buffer, delim, &buffer)) {  
-        // check if token is greater or equal to  6 character,
+         // Check if the token has at least 6 characters
         if ((int)strlen(token) >= 6) {  
-            //loop through wordarray to check token 
+           
+           // Loop through the wordArray to find a match for the token
             for (int i = 0; i < MAXWORDS; i++) {
-                //strcmp will comapare word in wordarray with token
-                //if matched sucessfully, returns 0
+                // Compare the token with the current word in the array
                 result = strcasecmp(wordArray[i].word, token);
-                //if match result is 0 and increase count
+
+                // If a match is found, update the count and exit the loop
                 if (result == 0) {
-                    //avoids race condition, critical section
+                    //Synchronization (avoid race condition)
                     pthread_mutex_lock(&lock);   
                     wordArray[i].count++;
-                    // End critical section
                     pthread_mutex_unlock(&lock); 
                     break;
                 } 
             }
-            // if no match found
+            // If no match is found, add the token to the wordArray
             if (result != 0) {
                 if (count < MAXWORDS) {
-                    // avoids race condition, critical section
+                  //Synchronization (avoid race condition)
                     pthread_mutex_lock(&lock); 
-                    //insert token to word array           
                     strcpy(wordArray[count].word, token);
                     wordArray[count].count++;
-                    // End critical section
                     pthread_mutex_unlock(&lock);  
-                    //increment count        
+                         
                     count++;
                 }
             }
@@ -131,13 +130,13 @@ int main (int argc, char *argv[])
     }
 
     // Open the file from the given command-line argument
-    fileDescriptor = open(argv[1], O_RDONLY);
+    file = open(argv[1], O_RDONLY);
 
     // Use lseek to determine the size of the file
-    fileSize = lseek(fileDescriptor, 0, SEEK_END);
+    fileSize = lseek(file, 0, SEEK_END);
 
     // Reset the file position back to the start
-    lseek(fileDescriptor, 0, SEEK_SET);
+    lseek(file, 0, SEEK_SET);
 
     // Determine the block size based on the number of threads
     blockSize = fileSize / numOfThreads;
@@ -152,24 +151,23 @@ int main (int argc, char *argv[])
     //**************************************************************
     // *** TO DO ***  start your thread processing
     //                wait for the threads to finish
-     // Declare pthread with number of threads
+
+    // Declare pthread with number of threads
     pthread_t thread[numOfThreads];
 
     for (int i = 0; i < numOfThreads; i++) {
         //checking for last threads to adjust excess bytes with leftovers
         if (i == numOfThreads-1) {
-            excessBytes = fileSize % numOfThreads;
+            extraBytes = fileSize % numOfThreads;
         }
-        // start new thread in calling process with some error checking
-        if (r2 = pthread_create(&thread[i], NULL, wordProcess, (void*) &i)) {
+        // start new thread 
+        if (r2 = pthread_create(&thread[i], NULL, wordFrequencyCount, (void*) &i)) {
             printf("ERROR: Thread creation failed [%d]\n", r2);
             exit(EXIT_FAILURE);
         }
     }
 
-    // blocks the execution of calling threads
-    //until target threads terminates
-    // acts like wait()
+ // Wait for all threads to complete execution
     for (int i = 0; i < numOfThreads; i++) {
         pthread_join(thread[i], NULL);
     }
@@ -216,7 +214,7 @@ int main (int argc, char *argv[])
 
     // ***TO DO *** cleanup
      // do necessary closing of the file
-    close(fileDescriptor);
+    close(file);
     // must destroy lock
     pthread_mutex_destroy(&lock);
     // Free  buffers
