@@ -1,80 +1,28 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/jqwvPGIU)
-# Assignment 4 - Word Blast
+# Word Tally in War and Peace using Threads📚 🐰
 
-Welcome to your fourth homework assignment.  
+## Description🤗
 
-Again, code should be neat, well documented.  Variables should have meaningful names and be in a consistent format (I do not care if you use camelCase or under_scores in variables but be consistent.  In addition, each file should have a standard header as defined below.  Remember your line length limits of generally 80 characters and no more than 100.
-```
-/**************************************************************
-* Class:  CSC-415-0# Spring 2023
-* Name:
-* Student ID:
-* GitHub ID:
-* Project: Assignment 4 – Word Blast
-*
-* File: <name of this file>
-*
-* Description:
-*
-**************************************************************/
-```
+This project reads the text of "War and Peace" and counts the occurrences of each word that is 6 or more characters long. The program utilizes multiple threads to process different chunks of the file concurrently, tallying the results to find the ten most frequently occurring words of 6 or more characters.
 
-This is an INDIVIDUAL assignment written in C.  You can (and should) work in groups to research how to do the assignment, but each person should code their own version and make their own submission.
+## Getting Started🙌
 
-For this assignment, your program is to read War and Peace (a text copy is included with this assignment) and it is to count and tally each of the words that are 6 or more characters long.  And again, you will only use Linux (not library) file functions, i.e. open, close, read, lseek, pread.
+### Prerequisites🐢
 
-BUT, it is to do this using threads.  Each thread will take a chunk of the file and process it, returning it’s results to the main which tallies (or if you directly tally to shared memory, that is okay) and then the main will print the ten, 6 or more character, words with the highest tallies, in order highest to lowest, and their associated counts.  i.e. The top ten words and the number of times that word appears in the text.  Remember that this assignment will be using the pthread functions.
+- **Linux Environment**
+- **GCC Compiler**
+- **Pthreads Library**
 
-Your program should take two parameters on the command line:  FileName  and ThreadCount
-- FileName is the name of the file to read – WarAndPeace.txt
-- ThreadCount is the number of threads you should spawn to evenly divide the work.
+### Files Provided🦸‍♂️
 
-That is to say – if the parameter is 1, the entire file would be read and processed by one thread.  If the parameter is 5, then you would divide the file into 5 equal parts (accounting for rounding on the last part).  So thread one would take the first 1/5 of the file, thread 2 the second fifth and so on.  But, these threads should all be launched together in a loop. So that they can execute in parallel.
+- `WarAndPeace.txt`: The text file of "War and Peace."
 
-#include <time.h> in your code and in main, include the code below in your main.  This will display how much time your program takes.  Your submission should include a run with 1 thread, 2 threads, 4 threads, and 8 threads.  How do the times compare?
+### Program Parameters🏋️
 
-```
-    //**************************************************************
-    // DO NOT CHANGE THIS BLOCK
-    //Time stamp start
-    struct timespec startTime;
-    struct timespec endTime;
-
-    clock_gettime(CLOCK_REALTIME, &startTime);
-    //**************************************************************
-    // *** TO DO ***  start your thread processing
-    //                wait for the threads to finish
-
-
-    // ***TO DO *** Process TOP 10 and display
-
-    //**************************************************************
-    // DO NOT CHANGE THIS BLOCK
-    //Clock output
-    clock_gettime(CLOCK_REALTIME, &endTime);
-    time_t sec = endTime.tv_sec - startTime.tv_sec;
-    long n_sec = endTime.tv_nsec - startTime.tv_nsec;
-    if (endTime.tv_nsec < startTime.tv_nsec)
-        {
-        --sec;
-        n_sec = n_sec + 1000000000L;
-        }
-
-    printf("Total Time was %ld.%09ld seconds\n", sec, n_sec);
-    //**************************************************************
-
-```
-There is a template main with this code provided. (Don't forget to rename it to the naming conventions).  Do not modify in any way the blocks that start and end the timers (including the asterisks).  Make sure that other than initialization code and cleanup code that your code is between these blocks where the `TO DO`'s are.
-
-**Hints** Do not forget to protect critical sections.  Make sure you use thread safe library calls.  You will need to know how long the input file is, look up lseek.  Do not use pipes.  You must use mutex locks.
-
-Do a writeup using the template in PDF format that includes a description of what you did, issues, resolutions and an analysis of the results.  Explain and reflect on why the times for the different runs are what they are, how does each run compare with the others.  Also include the compilation and execution output from your program in the writeup. Your execution output should include at least 4 runs, 1 thread, 2 threads, 4 threads, and 8 threads.   Submit all your source code file(s), Makefile and PDF writeup into GitHub.  The writeup (PDF) should also be submitted to Canvas.
-
-**Note** Do not change any of the settings of the virtual machine.
-
-Your main program filenames should be `<lastname>_<firstname>HW<#>_<optional>.<proper extension>`
-
-**Sample Output**
+The program should be executed with two command line parameters:
+1. `FileName`: The name of the file to read (e.g., `WarAndPeace.txt`).
+2. `ThreadCount`: The number of threads to spawn for processing the file.
+   
+**Sample Output**🎮
 ```
 gcc -o bierman_robert_HW4_main bierman_robert_HW4_main.o -g -I. -l pthread
 ./bierman_robert_HW4_main WarAndPeace.txt 4
@@ -95,20 +43,15 @@ Number 10 is thought with a count of 767
 Total Time was 1.938852743 seconds
 ```
 
+## License📜
 
+This project is licensed under the MIT License - see the [LICENSE](https://choosealicense.com/licenses/mit/) file for details.
 
-**Grading Rubric**
-| Grade Item                     | Grade Points |
-|--------------------------------|--------------|
-| Header                         |            2 |
-| Documented Code                |            8 |
-| Command Line Arg.              |            5 |
-| Used Threads                   |           10 |
-| Used and Displayed Timer Code  |            5 |
-| Runs to Completion             |           10 |
-| Correct Output                 |           15 |
-| Double Thread 1/2 time         |           15 |
-| Proper Use of Critical Section |           10 |
-| Writeup                        |           20 |
+## Credits🔥
 
+- [Juan Estrada](https://github.com/jjestrada2) - Developer of this project.
+
+## Contact🦻
+
+For support or inquiries, please contact [Juan Estrada](mailto:juan5801331@gmail.com).
 
